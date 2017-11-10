@@ -7,7 +7,8 @@ public class SceneManager : MonoBehaviour
 
     public GameObject selectedTile;
     public static bool tileSelected;
-    public GameObject plant; //The plants that can be planted.
+    public GameObject plantPrefab; //The plants that can be planted.
+    private GameObject plantObject; //Every plant started at the same size it the plant before it have reached. So i needed a plant object
 
     // Use this for initialization
     void Start()
@@ -29,8 +30,8 @@ public class SceneManager : MonoBehaviour
     {
         if (!selectedTile.GetComponent<TileMouseOver>().hasPlant)
         {
-            plant = Instantiate(plant, selectedTile.transform.position, Quaternion.identity);
-            plant.transform.parent = selectedTile.transform;
+            plantObject = Instantiate(plantPrefab, selectedTile.transform.position, Quaternion.identity) as GameObject;
+            plantObject.transform.SetParent(selectedTile.transform, true);
             selectedTile.GetComponent<TileMouseOver>().hasPlant = true;
         }
     }
