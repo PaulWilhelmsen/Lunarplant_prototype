@@ -30,6 +30,7 @@ public class SceneManager : MonoBehaviour
     {
         if (!selectedTile.GetComponent<TileMouseOver>().hasPlant)
         {
+            //make a copy of the prefab over the selected tile
             plantObject = Instantiate(plantPrefab, selectedTile.transform.position, Quaternion.identity) as GameObject;
             plantObject.transform.SetParent(selectedTile.transform, true);
             selectedTile.GetComponent<TileMouseOver>().hasPlant = true;
