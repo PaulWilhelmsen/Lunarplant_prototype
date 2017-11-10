@@ -29,7 +29,8 @@ public class SceneManager : MonoBehaviour
     {
         if (!selectedTile.GetComponent<TileMouseOver>().hasPlant)
         {
-            Instantiate(plant, selectedTile.transform.position, Quaternion.identity);
+            plant = Instantiate(plant, selectedTile.transform.position, Quaternion.identity);
+            plant.transform.parent = selectedTile.transform;
             selectedTile.GetComponent<TileMouseOver>().hasPlant = true;
         }
     }
