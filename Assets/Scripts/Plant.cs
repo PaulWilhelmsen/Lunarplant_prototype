@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Plant : MonoBehaviour {
+public class Plant : MonoBehaviour
+{
     public float maxSize = 3;
     [Range(0f, 100f)]
     public float growthSpeed = 8;
     public Renderer rend;
-    public int water = 0;
+    public float water = 0;
+    public float waterUsage = 2;
+    public float waterGain = 5;
 
     private float growthSpeedOriginal;
     private float growthSpeedChanged;
@@ -18,20 +21,38 @@ public class Plant : MonoBehaviour {
     private bool waterbonusbool = false;
 
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         startSize = gameObject.transform.localScale;
         growthSpeedVec = SetGrowRate(growthSpeed);
         growthSpeedChanged = growthSpeed;
         growthSpeedOriginal = growthSpeed;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        waterBonus();
-        Growing();
+    }
 
-	}
+    // Update is called once per frame
+    void Update()
+    {
+        //It can be harvested
+        if (!fullgrown)
+        {
+            //drain water if tile is not watered.
+            if (!gameObject.GetComponentInParent<TileMouseOver>().watered)
+            {
+                waterDrain();
+            }
+            else
+            {
+                if (water < 100)
+                {
+                    water += waterGain * Time.deltaTime;
+                }
+            }
+            waterBonus();//Gives a growrate bonus if it has enough water, also kills the plant if it looses all its power.
+            Growing();//Resizes the plant
+        }
+
+    }
 
     //Should be made in a own class. Could be good for reused code.
     private void Growing()
@@ -43,10 +64,14 @@ public class Plant : MonoBehaviour {
             growthSpeedChanged = growthSpeed;
         }
 
-        if (growing && !fullgrown)
+        if (growing && !fullgrown)  //fullgrown isnt really needed anymore here
         {
             if (gameObject.transform.localScale.x < maxSize)
-            gameObject.transform.localScale += growthSpeedVec * Time.deltaTime;
+                gameObject.transform.localScale += growthSpeedVec * Time.deltaTime;
+        }
+        if(gameObject.transform.localScale.x >= maxSize)    //if its fullgrown its ready for harvest.
+        {
+            fullgrown = true;
         }
 
 
@@ -63,18 +88,31 @@ public class Plant : MonoBehaviour {
             growthSpeed = growthSpeedOriginal;
             waterbonusbool = false;
         }
-        else if (water < 40)
+        else if (water < 40 && water > 10)
             growthSpeed = 0;
         else if (water < 10)
         {
             rend.material.color = Color.gray;
         }
     }
+
+    public void setWaterUsage(float _waterUsage)
+    {
+        waterUsage = _waterUsage;
+    }
+
+    public void waterDrain()
+    {
+        water -= waterUsage * Time.deltaTime;
+    }
+
     //Returns a vector with grow rate of the plant.
     public Vector3 SetGrowRate(float growRate)
     {
-        float growRateSlowed = growRate/10;
+        float growRateSlowed = growRate / 10;
         Vector3 v = new Vector3(growRateSlowed, growRateSlowed, growRateSlowed);
         return v;
     }
+
+
 }

@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Would be nice to just call it Tile, since it actually holds all the tile variables as well.
 public class TileMouseOver : MonoBehaviour
 {
     public Color highLightColor;
     public Camera cam;
 
     public bool hasPlant = false;
+    public bool watered = false;
     public bool clicked;    //So the hover highlight color won't bother the selected highlight color. 
     private Color normalColor;
+    private Color lerpedColor;
+    [SerializeField]
+    private float waterTimer;
     private Collider col;
     private Renderer r;
 
@@ -29,10 +34,24 @@ public class TileMouseOver : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        MouseInteractions();
+
+        //If the tile is watered
+        if(watered)
+        {
+            waterTimer -= Time.deltaTime;
+            if (waterTimer < 0)
+                watered = false;
+        }
+
+    }
+
+    //Interact with the mouse. Hover over a tile, click on a tile.
+    private void MouseInteractions()
+    {
         //sends a ray from the camera to the object.
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
-
 
         //To be able to highlight the tile we use a ray. This can go through objects since
         //it uses the specific collider from the tile
@@ -43,11 +62,17 @@ public class TileMouseOver : MonoBehaviour
             if (col.Raycast(ray, out hitInfo, Mathf.Infinity))
                 r.material.color = highLightColor;
             else
-                r.material.color = normalColor;
+            {
+                if (watered)
+                    r.material.color = Color.blue;
+                else
+                    r.material.color = normalColor;
+            }
+
         }
 
 
-        //Highlights a clicked object. 
+        //Highlights a clicked object with color red. 
         if (Input.GetMouseButtonDown(0) && col.Raycast(ray, out hitInfo, Mathf.Infinity))
         {
             r.material.color = Color.red;
@@ -55,8 +80,6 @@ public class TileMouseOver : MonoBehaviour
 
             //sets the selected gameobject in SceneManager, so its easy accesable if another script or nightmarefuel needs it. 
             GameObject.Find("SceneManager").GetComponent<SceneManager>().selectedTile = gameObject;
-            //hasPlant = true;
-            //Instantiate(plant, gameObject.transform.position, Quaternion.identity);
         }
         else if (Input.GetMouseButtonDown(0) && !col.Raycast(ray, out hitInfo, Mathf.Infinity))
         {
@@ -64,8 +87,17 @@ public class TileMouseOver : MonoBehaviour
             clicked = false;
         }
 
+
     }
 
+    public void tileWatered()
+    {
+        watered = true;
+        waterTimer = 10;
+    }
+
+
+    //---------------------------------------------------------TestCoded/ThrowAwayCode-------------------------------------------------
 
     //With mouseover a tile won't highlight if an object is on the tile
     //That is because the mouse will be over the object and not over a tile.
@@ -78,4 +110,10 @@ public class TileMouseOver : MonoBehaviour
     //{
     //    r.material.color = normalColor;
     //} 
+
+    //To smoothly change the color.. goes to fast so I need to research it.
+    //But then again this is polish, not needed in a prototype
+    //lerpedColor = Color.Lerp(Color.blue, Color.white, Mathf.PingPong(Time.time, 1));
+    //r.material.color = lerpedColor;
+    //Debug.Log(Mathf.Lerp(0, 1, 1));
 }

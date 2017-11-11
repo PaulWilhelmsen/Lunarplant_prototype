@@ -36,4 +36,9 @@ public class SceneManager : MonoBehaviour
             selectedTile.GetComponent<TileMouseOver>().hasPlant = true;
         }
     }
+
+    public void waterTile()
+    {
+        selectedTile.GetComponent<TileMouseOver>().tileWatered();
+    }
 }
