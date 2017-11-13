@@ -11,6 +11,7 @@ public class Plant : MonoBehaviour
     public float water = 0;
     public float waterUsage = 2;
     public float waterGain = 5;
+    public ParticleSystem fullGrownParticleSystem;
 
     private float growthSpeedOriginal;
     private float growthSpeedChanged;
@@ -18,6 +19,7 @@ public class Plant : MonoBehaviour
     private Vector3 startSize;
     private bool growing = true;
     private bool fullgrown = false;
+    private bool fullGrownParticleBool= false;
     private bool waterbonusbool = false;
 
 
@@ -50,6 +52,19 @@ public class Plant : MonoBehaviour
             }
             waterBonus();//Gives a growrate bonus if it has enough water, also kills the plant if it looses all its power.
             Growing();//Resizes the plant
+        }
+        else
+        {
+            //Creates a particle system when the plant is fullgrown. its to give feedback that this shit is ripe for plucking bitch. 
+            if(!fullGrownParticleBool)
+            {
+                ParticleSystem ps = Instantiate(fullGrownParticleSystem, gameObject.transform.position, Quaternion.identity) as ParticleSystem;
+                ps.transform.Rotate(-90, 0, 0);
+                ps.transform.SetParent(gameObject.transform);
+                ps.transform.localScale = Vector3.one * 5;  //Since parent resizes the child, I used this horrible hack to resize to a size i wanted.
+                fullGrownParticleBool = true;
+            }
+
         }
 
     }
