@@ -73,22 +73,22 @@ public class Plant : MonoBehaviour
     //Adds a bonus for if the plant have a high waterlevel.
     protected virtual void waterBonus()
     {
-        if (water > 60 && !waterbonusbool)
+        if (water > 60 && !waterbonusbool)  //Gains a growthspeed of +10
         {
             growthSpeed = growthSpeedOriginal + 10;
         }
-        else if (water > 40)
+        else if (water > 40)    //Grows in a normal rate
         {
             growthSpeed = growthSpeedOriginal;
             waterbonusbool = false;
         }
-        else if (water < 40 && water > 10)
+        else if (water < 40 && water > 10)  //stop growing
             growthSpeed = 0;
-        else if (water < 10)
+        else if (water < 10)    //Plant dies
         {
             if (!died)
             {
-                killPlant(5);
+                killPlant(5);   //Plant turns gray and is removed in x seconds.
             }
 
         }
@@ -105,7 +105,7 @@ public class Plant : MonoBehaviour
             growthSpeedChanged = growthSpeed;
         }
 
-        if (growing && !fullgrown)  //fullgrown isnt really needed anymore here
+        if (growing && !fullgrown)  //plant is growing. fullgrown isnt really needed anymore here
         {
             if (gameObject.transform.localScale.x < maxSize)
                 gameObject.transform.localScale += growthSpeedVec * Time.deltaTime;
@@ -148,19 +148,19 @@ public class Plant : MonoBehaviour
         waterUsage = _waterUsage;
     }
 
-    public void killPlant(float timeToKillPlant)
+    public void killPlant(float timeToKillPlant)    //Kills a plant and removes it in x seconds
     {
         StartCoroutine(PlantDying(timeToKillPlant));
     }
 
-    public IEnumerator PlantDying(float waitTime)
+    public IEnumerator PlantDying(float waitTime)   //plants turn gray, tile can be replanted and plant is removed
     {
         while (true)
         {
             rend.material.color = Color.gray;
-            gameObject.GetComponentInParent<TileMouseOver>().hasPlant = false;
             died = true;
             yield return new WaitForSeconds(waitTime);
+            gameObject.GetComponentInParent<TileMouseOver>().hasPlant = false;  //tile can be replanted.
             Destroy(gameObject);
         }
     }

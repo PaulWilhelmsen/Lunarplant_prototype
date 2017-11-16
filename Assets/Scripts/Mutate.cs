@@ -33,15 +33,15 @@ public class Mutate : MonoBehaviour {
             GetComponent<Plant>().killPlant(5);
     }
 
-    private void startMutation()
+    private void startMutation()    //Mutates the plant
     {
-        mutationObject = Instantiate(mutationsPrefabs[0], transform.parent.position, Quaternion.identity);
+        mutationObject = Instantiate(mutationsPrefabs[0], transform.parent.position, Quaternion.identity);  //spawns the mutated plant
         mutationObject.transform.SetParent(transform.parent);
         GetComponent<Plant>().killPlant(0);
         
     }
 
-    float MutationRoll()
+    float MutationRoll()    //Makes a random number between 0 to 100
     {
         float D100D10 = UnityEngine.Random.Range(0f, 100f); //Complained because it didnt know if i wanted system or unityengine Random value. 
         Debug.Log("Mutation Roll: " + D100D10);

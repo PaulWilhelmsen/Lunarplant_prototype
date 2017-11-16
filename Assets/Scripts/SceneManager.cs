@@ -37,7 +37,7 @@ public class SceneManager : MonoBehaviour
         }
     }
 
-    public void waterTile()
+    public void waterTile() //Waters the tile.
     {
         selectedTile.GetComponent<TileMouseOver>().tileWatered();
     }

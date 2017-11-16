@@ -14,7 +14,7 @@ public class SolarStorm : MonoBehaviour {
 		
 	}
 
-    public void InvokeSolarStorm()
+    public void InvokeSolarStorm()  //Makes a solarstorm affect all the plants
     {
 
         Mutate[] targets = FindObjectsOfType(typeof(Mutate)) as Mutate[];
