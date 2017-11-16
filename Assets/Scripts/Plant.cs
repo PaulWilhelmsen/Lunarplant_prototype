@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,18 +14,18 @@ public class Plant : MonoBehaviour
     public float waterGain = 5;
     public ParticleSystem fullGrownParticleSystem;
 
-    private float growthSpeedOriginal;
-    private float growthSpeedChanged;
-    private Vector3 growthSpeedVec;
-    private Vector3 startSize;
-    private bool growing = true;
-    private bool fullgrown = false;
-    private bool fullGrownParticleBool= false;
-    private bool waterbonusbool = false;
+    protected float growthSpeedOriginal;
+    protected float growthSpeedChanged;
+    protected Vector3 growthSpeedVec;
+    protected Vector3 startSize;
+    protected bool growing = true;
+    protected bool fullgrown = false;
+    protected bool fullGrownParticleBool= false;
+    protected bool waterbonusbool = false;
 
 
     // Use this for initialization
-    void Start()
+    protected void Start()
     {
         startSize = gameObject.transform.localScale;
         growthSpeedVec = SetGrowRate(growthSpeed);
@@ -33,23 +34,12 @@ public class Plant : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected void Update()
     {
         //It can be harvested
         if (!fullgrown)
         {
-            //drain water if tile is not watered.
-            if (!gameObject.GetComponentInParent<TileMouseOver>().watered)
-            {
-                waterDrain();
-            }
-            else
-            {
-                if (water < 100)
-                {
-                    water += waterGain * Time.deltaTime;
-                }
-            }
+            TileWatered(); //drain water if tile is not watered.
             waterBonus();//Gives a growrate bonus if it has enough water, also kills the plant if it looses all its power.
             Growing();//Resizes the plant
         }
@@ -58,41 +48,29 @@ public class Plant : MonoBehaviour
             //Creates a particle system when the plant is fullgrown. its to give feedback that this shit is ripe for plucking bitch. 
             if(!fullGrownParticleBool)
             {
-                ParticleSystem ps = Instantiate(fullGrownParticleSystem, gameObject.transform.position, Quaternion.identity) as ParticleSystem;
-                ps.transform.Rotate(-90, 0, 0);
-                ps.transform.SetParent(gameObject.transform);
-                ps.transform.localScale = Vector3.one * 5;  //Since parent resizes the child, I used this horrible hack to resize to a size i wanted.
-                fullGrownParticleBool = true;
+                spawnGrownParticles();   //Spawns the particle system for a fullgrown plant.
             }
-
         }
-
     }
 
-    //Should be made in a own class. Could be good for reused code.
-    private void Growing()
+    //checks if the tile the plant is watered on is used.
+    private void TileWatered()
     {
-        //the growing speed is affected when changed. 
-        if (growthSpeed != growthSpeedChanged)
+        if (!gameObject.GetComponentInParent<TileMouseOver>().watered)
         {
-            growthSpeedVec = SetGrowRate(growthSpeed);
-            growthSpeedChanged = growthSpeed;
+            waterDrain();
         }
-
-        if (growing && !fullgrown)  //fullgrown isnt really needed anymore here
+        else
         {
-            if (gameObject.transform.localScale.x < maxSize)
-                gameObject.transform.localScale += growthSpeedVec * Time.deltaTime;
+            if (water < 100)
+            {
+                water += waterGain * Time.deltaTime;
+            }
         }
-        if(gameObject.transform.localScale.x >= maxSize)    //if its fullgrown its ready for harvest.
-        {
-            fullgrown = true;
-        }
-
-
     }
 
-    public void waterBonus()
+    //Adds a bonus for if the plant have a high waterlevel.
+    protected virtual void waterBonus()
     {
         if (water > 60 && !waterbonusbool)
         {
@@ -110,24 +88,57 @@ public class Plant : MonoBehaviour
             rend.material.color = Color.gray;
         }
     }
-
-    public void setWaterUsage(float _waterUsage)
+    
+    //Should be made in a own class. Could be good for reused code.
+    protected virtual void Growing()
     {
-        waterUsage = _waterUsage;
+        //the growing speed is affected when changed. 
+        if (growthSpeed != growthSpeedChanged)
+        {
+            growthSpeedVec = SetGrowRate(growthSpeed);
+            growthSpeedChanged = growthSpeed;
+        }
+
+        if (growing && !fullgrown)  //fullgrown isnt really needed anymore here
+        {
+            if (gameObject.transform.localScale.x < maxSize)
+                gameObject.transform.localScale += growthSpeedVec * Time.deltaTime;
+        }
+        if(gameObject.transform.localScale.x >= maxSize)    //if its fullgrown its ready for harvest.
+        {
+            fullgrown = true;
+        }
     }
 
-    public void waterDrain()
+
+    //The amount a water a plant uses.
+    public virtual void waterDrain()
     {
         water -= waterUsage * Time.deltaTime;
     }
 
     //Returns a vector with grow rate of the plant.
-    public Vector3 SetGrowRate(float growRate)
+    public virtual Vector3 SetGrowRate(float growRate)
     {
         float growRateSlowed = growRate / 10;
         Vector3 v = new Vector3(growRateSlowed, growRateSlowed, growRateSlowed);
         return v;
     }
 
-
-}
+    //Spawns particles for a fullgrown plant ^^
+    protected virtual void spawnGrownParticles()
+    {
+        ParticleSystem ps = Instantiate(fullGrownParticleSystem, gameObject.transform.position, Quaternion.identity) as ParticleSystem;
+        ps.transform.Rotate(-90, 0, 0);
+        ps.transform.SetParent(gameObject.transform);
+        ps.transform.localScale = Vector3.one * 5;  //Since parent resizes the child, I used this horrible hack to resize to a size i wanted.
+        fullGrownParticleBool = true;
+    }
+   
+    //not actually used, but if another class wants to change the
+    //waterusage a plant have. Add original waterUsage if needed.
+    public virtual void setWaterUsage(float _waterUsage)
+    {
+        waterUsage = _waterUsage;
+    }
+} 
