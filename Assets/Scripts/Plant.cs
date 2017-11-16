@@ -20,8 +20,9 @@ public class Plant : MonoBehaviour
     protected Vector3 startSize;
     protected bool growing = true;
     protected bool fullgrown = false;
-    protected bool fullGrownParticleBool= false;
+    protected bool fullGrownParticleBool = false;
     protected bool waterbonusbool = false;
+    protected bool died;
 
 
     // Use this for initialization
@@ -46,7 +47,7 @@ public class Plant : MonoBehaviour
         else
         {
             //Creates a particle system when the plant is fullgrown. its to give feedback that this shit is ripe for plucking bitch. 
-            if(!fullGrownParticleBool)
+            if (!fullGrownParticleBool)
             {
                 spawnGrownParticles();   //Spawns the particle system for a fullgrown plant.
             }
@@ -85,10 +86,15 @@ public class Plant : MonoBehaviour
             growthSpeed = 0;
         else if (water < 10)
         {
-            rend.material.color = Color.gray;
+            if (!died)
+            {
+                killPlant(5);
+            }
+
         }
     }
-    
+
+
     //Should be made in a own class. Could be good for reused code.
     protected virtual void Growing()
     {
@@ -104,7 +110,7 @@ public class Plant : MonoBehaviour
             if (gameObject.transform.localScale.x < maxSize)
                 gameObject.transform.localScale += growthSpeedVec * Time.deltaTime;
         }
-        if(gameObject.transform.localScale.x >= maxSize)    //if its fullgrown its ready for harvest.
+        if (gameObject.transform.localScale.x >= maxSize)    //if its fullgrown its ready for harvest.
         {
             fullgrown = true;
         }
@@ -134,11 +140,28 @@ public class Plant : MonoBehaviour
         ps.transform.localScale = Vector3.one * 5;  //Since parent resizes the child, I used this horrible hack to resize to a size i wanted.
         fullGrownParticleBool = true;
     }
-   
+
     //not actually used, but if another class wants to change the
     //waterusage a plant have. Add original waterUsage if needed.
     public virtual void setWaterUsage(float _waterUsage)
     {
         waterUsage = _waterUsage;
     }
-} 
+
+    public void killPlant(float timeToKillPlant)
+    {
+        StartCoroutine(PlantDying(timeToKillPlant));
+    }
+
+    public IEnumerator PlantDying(float waitTime)
+    {
+        while (true)
+        {
+            rend.material.color = Color.gray;
+            gameObject.GetComponentInParent<TileMouseOver>().hasPlant = false;
+            died = true;
+            yield return new WaitForSeconds(waitTime);
+            Destroy(gameObject);
+        }
+    }
+}
