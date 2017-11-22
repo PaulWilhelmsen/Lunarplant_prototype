@@ -38,13 +38,13 @@ public class Plant : MonoBehaviour
     protected void Update()
     {
         //It can be harvested
-        if (!fullgrown)
+        if (!fullgrown && !died)
         {
             TileWatered(); //drain water if tile is not watered.
             waterBonus();//Gives a growrate bonus if it has enough water, also kills the plant if it looses all its power.
             Growing();//Resizes the plant
         }
-        else
+        else if(fullgrown)
         {
             //Creates a particle system when the plant is fullgrown. its to give feedback that this shit is ripe for plucking bitch. 
             if (!fullGrownParticleBool)
@@ -150,6 +150,7 @@ public class Plant : MonoBehaviour
 
     public void killPlant(float timeToKillPlant)    //Kills a plant and removes it in x seconds
     {
+        water = 30;
         StartCoroutine(PlantDying(timeToKillPlant));
     }
 
@@ -160,7 +161,8 @@ public class Plant : MonoBehaviour
             rend.material.color = Color.gray;
             died = true;
             yield return new WaitForSeconds(waitTime);
-            gameObject.GetComponentInParent<TileMouseOver>().hasPlant = false;  //tile can be replanted.
+            if(!gameObject.GetComponent<Mutate>().mutated)
+                gameObject.GetComponentInParent<TileMouseOver>().hasPlant = false;  //tile can be replanted.
             Destroy(gameObject);
         }
     }

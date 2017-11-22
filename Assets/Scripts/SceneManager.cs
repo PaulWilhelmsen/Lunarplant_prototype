@@ -33,6 +33,7 @@ public class SceneManager : MonoBehaviour
             //make a copy of the prefab over the selected tile
             plantObject = Instantiate(plantPrefab, selectedTile.transform.position, Quaternion.identity) as GameObject;
             plantObject.transform.SetParent(selectedTile.transform, true);
+            plantObject.transform.rotation = plantObject.transform.parent.rotation;
             selectedTile.GetComponent<TileMouseOver>().hasPlant = true;
         }
     }
@@ -40,5 +41,26 @@ public class SceneManager : MonoBehaviour
     public void waterTile() //Waters the tile.
     {
         selectedTile.GetComponent<TileMouseOver>().tileWatered();
+    }
+
+    public void WaterandSeedEverything()
+    {
+        TileMouseOver[] targets = FindObjectsOfType(typeof(TileMouseOver)) as TileMouseOver[];
+        foreach (TileMouseOver tile in targets)
+        {
+            selectedTile = tile.gameObject;
+            plantPlant();
+            tile.tileWatered();
+        }
+    }
+
+    public void WaterAllTiles()
+    {
+        TileMouseOver[] targets = FindObjectsOfType(typeof(TileMouseOver)) as TileMouseOver[];
+        foreach (TileMouseOver tile in targets)
+        {
+            selectedTile = tile.gameObject;
+            tile.tileWatered();
+        }
     }
 }

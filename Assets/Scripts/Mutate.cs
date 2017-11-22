@@ -7,8 +7,10 @@ using UnityEngine.Assertions;
 public class Mutate : MonoBehaviour {
 
     public GameObject[] mutationsPrefabs;
+    [Range(0f, 100f)]
     public float[] mutationChance;
     private GameObject mutationObject;
+    public bool mutated = false;
     //public ParticleSystem plantMutated;
     //public ParticleSystem plantDied;
 
@@ -35,10 +37,13 @@ public class Mutate : MonoBehaviour {
 
     private void startMutation()    //Mutates the plant
     {
+        mutated = true;
         mutationObject = Instantiate(mutationsPrefabs[0], transform.parent.position, Quaternion.identity);  //spawns the mutated plant
         mutationObject.transform.SetParent(transform.parent);
+        mutationObject.transform.rotation = mutationObject.transform.parent.rotation;
         GetComponent<Plant>().killPlant(0);
-        
+
+
     }
 
     float MutationRoll()    //Makes a random number between 0 to 100
