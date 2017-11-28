@@ -5,55 +5,53 @@ using UnityEngine;
 public class PathScript : MonoBehaviour {
     public GameObject spawnPoint;
     public GameObject endPoint;
-    public Vector3[] waypoints;
+    public GameObject[] waypoints;
     public float speed;
-    public Vector3 moveFromThePlanet;
+    [Range(1f,2f)]
+    public float moveFromThePlanet;
     public Vector3 startPoint;
+
     private Vector3 privEndPoint;
     private Vector3 planetCore;
-
-    public GameObject locationTest;
+    private GameObject targetWaypoint;
+    private int currentTarget;
 	// Use this for initialization
 	void Start () {
+        currentTarget = 0;
         startPoint = spawnPoint.transform.position;
+        transform.position = startPoint;
         privEndPoint = endPoint.transform.position;
-        SetFirstPoint();
-        SetLastPoint();
         CreatePath();
-	}
+        targetWaypoint = waypoints[currentTarget];
+    }
 	
 	// Update is called once per frame
 	void Update () {
-		
+        transform.position = Vector3.MoveTowards(transform.position, targetWaypoint.transform.position, Time.deltaTime * speed);
+        Target();
 	}
-
-    void SetFirstPoint()
-    {
-        Vector3 firstPoint = NormalizeFromCore(startPoint);
-        firstPoint += moveFromThePlanet;
-        if (startPoint.x < 0) //starts on the "west" side
-        {
-
-        }
-        waypoints[0] = firstPoint;
-    }
-
-    void SetLastPoint()
-    {
-        Vector3 lastPoint = NormalizeFromCore(privEndPoint);
-        waypoints[waypoints.Length - 1] = lastPoint += moveFromThePlanet;
-    }
 
     void CreatePath()
     {
         float radius = (startPoint - planetCore).magnitude;
-        Vector3 newPoint = Divided(startPoint, privEndPoint);
-        newPoint = NormalizeFromCore(newPoint) * (radius * 1.2f);
-        locationTest = new GameObject("testObject");
-        locationTest.transform.position = newPoint;
-        for(int i = 1;i < waypoints.Length - 2;i++)
+        for (int i = waypoints.Length - 1;i >= 0 ;i--)
         {
+            Vector3 newPoint = Divided(startPoint, privEndPoint, i);
+            newPoint = NormalizeFromCore(newPoint) * (radius * 1.3f);
+            waypoints[i] = new GameObject("Waypoint" + i);
+            waypoints[i].transform.position = newPoint;
+        }
+    }
 
+    void Target()
+    {
+        float lengthToTarget = (targetWaypoint.transform.position - transform.position).magnitude;
+        Debug.Log(lengthToTarget);
+        if (lengthToTarget < 3)
+        targetWaypoint = waypoints[currentTarget++];
+        if(waypoints.Length == currentTarget && lengthToTarget < 3)
+        {
+            targetWaypoint = endPoint;
         }
     }
 
@@ -63,13 +61,12 @@ public class PathScript : MonoBehaviour {
         return normalizedVector;
     }
 
-    Vector3 Divided(Vector3 a, Vector3 b)
+    Vector3 Divided(Vector3 a, Vector3 b, float point)
     {
         Vector3 ab = b - a;
         float vecLength = ab.magnitude;
-        Debug.Log(vecLength);
         ab.Normalize();
-        Vector3 sum = a + (ab * vecLength/2);
+        Vector3 sum = a + (ab * vecLength* (point/waypoints.Length));
         return sum;
     }
 }
