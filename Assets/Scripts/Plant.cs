@@ -2,24 +2,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class Plant : MonoBehaviour
 {
     public float maxSize = 3;
     [Range(0f, 100f)]
     public float growthSpeed = 8;
-    public Renderer rend;
     public float water = 0;
     public float waterUsage = 2;
     public float waterGain = 5;
+    public bool fullgrown = false;
     public ParticleSystem fullGrownParticleSystem;
+    public Renderer rend;
 
     protected float growthSpeedOriginal;
     protected float growthSpeedChanged;
     protected Vector3 growthSpeedVec;
     protected Vector3 startSize;
     protected bool growing = true;
-    protected bool fullgrown = false;
+
     protected bool fullGrownParticleBool = false;
     protected bool waterbonusbool = false;
     protected bool died;
@@ -28,6 +30,10 @@ public class Plant : MonoBehaviour
     // Use this for initialization
     protected void Start()
     {
+        //alerts if a public slot is not set
+        Assert.IsNotNull(fullGrownParticleSystem, "Plants public particle system not set");
+        Assert.IsNotNull(rend, "public renderer for a plant is not set");
+
         startSize = gameObject.transform.localScale;
         growthSpeedVec = SetGrowRate(growthSpeed);
         growthSpeedChanged = growthSpeed;
@@ -44,13 +50,14 @@ public class Plant : MonoBehaviour
             waterBonus();//Gives a growrate bonus if it has enough water, also kills the plant if it looses all its power.
             Growing();//Resizes the plant
         }
-        else if(fullgrown)
+        else if (fullgrown)
         {
             //Creates a particle system when the plant is fullgrown. its to give feedback that this shit is ripe for plucking bitch. 
             if (!fullGrownParticleBool)
             {
                 spawnGrownParticles();   //Spawns the particle system for a fullgrown plant.
             }
+
         }
     }
 
@@ -161,9 +168,20 @@ public class Plant : MonoBehaviour
             rend.material.color = Color.gray;
             died = true;
             yield return new WaitForSeconds(waitTime);
-            if(!gameObject.GetComponent<Mutate>().mutated)
+            if (!gameObject.GetComponent<Mutate>().mutated)
                 gameObject.GetComponentInParent<TileMouseOver>().hasPlant = false;  //tile can be replanted.
             Destroy(gameObject);
         }
+    }
+
+    //not implemented yet
+    public void HarvestPlant()
+    {
+        
+    }
+
+    public IEnumerator HarvestingPlant()
+    {
+        yield return 0;
     }
 }

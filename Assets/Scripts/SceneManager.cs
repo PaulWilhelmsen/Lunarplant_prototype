@@ -43,6 +43,11 @@ public class SceneManager : MonoBehaviour
         selectedTile.GetComponent<TileMouseOver>().tileWatered();
     }
 
+    public void harvestPlant()
+    {
+
+    }
+
     public void WaterandSeedEverything()
     {
         TileMouseOver[] targets = FindObjectsOfType(typeof(TileMouseOver)) as TileMouseOver[];
