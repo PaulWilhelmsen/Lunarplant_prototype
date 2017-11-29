@@ -14,8 +14,11 @@ public class Plant : MonoBehaviour
     public float waterGain = 5;
     public bool fullgrown = false;
     public ParticleSystem fullGrownParticleSystem;
-    public Renderer rend;
+    
 
+    public Renderer rend;
+    public ParticleSystem harvestedParticlePrefab;
+    private ParticleSystem harvestedParticleObject;
     protected float growthSpeedOriginal;
     protected float growthSpeedChanged;
     protected Vector3 growthSpeedVec;
@@ -26,12 +29,16 @@ public class Plant : MonoBehaviour
     protected bool waterbonusbool = false;
     protected bool died;
 
-
+    public enum PlantType
+    {
+        GREEN = 0, PURPLE = 1
+    }
     // Use this for initialization
     protected void Start()
     {
         //alerts if a public slot is not set
         Assert.IsNotNull(fullGrownParticleSystem, "Plants public particle system not set");
+        Assert.IsNotNull(harvestedParticlePrefab, "Plants harvested particle system not set");
         Assert.IsNotNull(rend, "public renderer for a plant is not set");
 
         startSize = gameObject.transform.localScale;
@@ -56,6 +63,7 @@ public class Plant : MonoBehaviour
             if (!fullGrownParticleBool)
             {
                 spawnGrownParticles();   //Spawns the particle system for a fullgrown plant.
+                GetComponentInParent<TileMouseOver>().harvestable = true;   //So the plant can be harvested
             }
 
         }
@@ -177,7 +185,9 @@ public class Plant : MonoBehaviour
     //not implemented yet
     public void HarvestPlant()
     {
-        
+        harvestedParticleObject = Instantiate(harvestedParticlePrefab, gameObject.transform.position, Quaternion.identity) as ParticleSystem;
+        harvestedParticleObject.GetComponent<PathScript>().newPath(gameObject.transform.parent.gameObject, GameObject.Find("Airship"));    //start at this object and end at airship object set in scenemanager.
+        killPlant(2);
     }
 
     public IEnumerator HarvestingPlant()

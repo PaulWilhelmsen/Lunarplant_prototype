@@ -9,6 +9,7 @@ public class TileMouseOver : MonoBehaviour
     public Camera cam;
 
     public bool hasPlant = false;
+    public bool harvestable = false;
     public bool watered = false;
     public bool clicked;    //So the hover highlight color won't bother the selected highlight color. 
     private Color normalColor;

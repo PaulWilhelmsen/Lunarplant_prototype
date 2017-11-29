@@ -21,7 +21,6 @@ public class Mutate : MonoBehaviour {
         //Assert.IsNotNull(plantMutated);
         //Assert.IsNotNull(plantDied);
         Assert.IsNotNull(mutationsPrefabs);
-        Assert.IsNotNull(mutationObject);
     }
 
 
